@@ -69,7 +69,7 @@ export const MainLayout = () => {
       <div className={cn(
         "flex flex-col min-h-screen transition-all duration-300",
         // Desktop margins
-        isMobile ? "ml-0" : (sidebarCollapsed ? "ml-16" : "ml-64")
+        isMobile ? "ml-0" : (sidebarCollapsed ? "ml-16" : "ml-72")
       )}>
         {/* Topbar */}
         <Topbar />

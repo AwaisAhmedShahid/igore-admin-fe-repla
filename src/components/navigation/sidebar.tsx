@@ -112,7 +112,7 @@ export const Sidebar = () => {
       id="mobile-sidebar"
       className={cn(
         "bg-gray-900 text-white transition-all duration-300 h-screen flex flex-col",
-        isMobile ? "w-64" : (sidebarCollapsed ? "w-16" : "w-64")
+        isMobile ? "w-72" : (sidebarCollapsed ? "w-16" : "w-72")
       )}
     >
       <div className="flex flex-1 flex-col">
@@ -159,7 +159,7 @@ export const Sidebar = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-4 sm:py-6 space-y-1 sm:space-y-2 overflow-y-auto">
+        <nav className="flex-1 px-4 py-4 sm:py-6 space-y-2 sm:space-y-6 overflow-y-auto">
           {navigation.map((item) => (
             <SidebarItem
               key={item.href}
