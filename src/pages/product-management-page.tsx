@@ -107,58 +107,62 @@ const ProductTable = ({ products, searchTerm, statusFilter }: ProductTableProps)
   });
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Product</TableHead>
-          <TableHead>SKU</TableHead>
-          <TableHead>Price</TableHead>
-          {products.some(p => p.type === 'physical') && <TableHead>Stock</TableHead>}
-          <TableHead>Status</TableHead>
-          <TableHead>Added Date</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
+    <div className="overflow-x-auto">
+      <Table className="table-mobile">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Product</TableHead>
+            <TableHead className="hidden sm:table-cell">SKU</TableHead>
+            <TableHead>Price</TableHead>
+            {products.some(p => p.type === 'physical') && <TableHead className="hidden md:table-cell">Stock</TableHead>}
+            <TableHead>Status</TableHead>
+            <TableHead className="hidden lg:table-cell">Added Date</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
       <TableBody>
         {filteredProducts.map((product) => (
           <TableRow key={product.id}>
             <TableCell>
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Avatar className="h-8 w-8 sm:h-10 sm:w-10 shrink-0">
                   <AvatarImage src={product.image} alt={product.name} />
                   <AvatarFallback>
-                    <Package className="h-5 w-5" />
+                    <Package className="h-4 w-4 sm:h-5 sm:w-5" />
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <div className="font-medium">{product.name}</div>
-                  <div className="text-sm text-gray-500">
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium text-sm sm:text-base truncate">{product.name}</div>
+                  <div className="text-xs sm:text-sm text-gray-500 truncate sm:hidden">
+                    {product.sku}
+                  </div>
+                  <div className="text-xs text-gray-500 hidden sm:block">
                     {product.description}
                   </div>
                 </div>
               </div>
             </TableCell>
-            <TableCell className="font-mono text-sm">{product.sku}</TableCell>
-            <TableCell className="font-semibold">${product.price}</TableCell>
+            <TableCell className="hidden sm:table-cell font-mono text-sm">{product.sku}</TableCell>
+            <TableCell className="font-semibold text-sm">${product.price}</TableCell>
             {products.some(p => p.type === 'physical') && (
-              <TableCell>
+              <TableCell className="hidden md:table-cell">
                 {product.type === 'physical' ? (
-                  <span className={product.quantity! <= 10 ? 'text-red-600 font-medium' : ''}>
+                  <span className={product.quantity! <= 10 ? 'text-red-600 font-medium text-sm' : 'text-sm'}>
                     {product.quantity} units
                   </span>
                 ) : (
-                  <span className="text-gray-400">Digital</span>
+                  <span className="text-gray-400 text-sm">Digital</span>
                 )}
               </TableCell>
             )}
             <TableCell>
               <StatusBadge status={product.status} />
             </TableCell>
-            <TableCell className="text-gray-500">{product.addedDate}</TableCell>
+            <TableCell className="hidden lg:table-cell text-gray-500 text-sm">{product.addedDate}</TableCell>
             <TableCell className="text-right">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
+                  <Button variant="ghost" className="h-8 w-8 p-0 touch-target">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -181,6 +185,7 @@ const ProductTable = ({ products, searchTerm, statusFilter }: ProductTableProps)
         ))}
       </TableBody>
     </Table>
+    </div>
   );
 };
 
@@ -194,23 +199,24 @@ export const ProductManagementPage = () => {
   const digitalProducts = mockProducts.filter(p => p.type === 'digital');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
-          <p className="text-gray-600">Manage your physical and digital products</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Product Management</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your physical and digital products</p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center justify-center gap-2 touch-target">
           <Plus className="h-4 w-4" />
-          Add Product
+          <span className="hidden sm:inline">Add Product</span>
+          <span className="sm:hidden">Add</span>
         </Button>
       </div>
 
       {/* Filters */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4 md:flex-row">
+        <CardContent className="pt-4 sm:pt-6">
+          <div className="flex flex-col gap-3 sm:gap-4 md:flex-row">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -219,7 +225,7 @@ export const ProductManagementPage = () => {
                   placeholder="Search products..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 text-responsive"
                 />
               </div>
             </div>
