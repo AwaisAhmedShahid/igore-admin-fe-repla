@@ -172,3 +172,37 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Mobile-friendly touch targets */
+  .touch-target {
+    @apply min-h-11 min-w-11;
+  }
+  
+  /* Responsive text sizing */
+  .text-responsive {
+    @apply text-sm sm:text-base;
+  }
+  
+  /* Mobile table improvements */
+  .table-mobile {
+    @apply text-sm;
+  }
+  
+  .table-mobile th,
+  .table-mobile td {
+    @apply px-2 py-3 sm:px-4 sm:py-2;
+  }
+  
+  /* Safe area for mobile devices */
+  .safe-area-inset {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Smooth scrolling for better mobile experience */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+}

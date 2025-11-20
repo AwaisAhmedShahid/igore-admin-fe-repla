@@ -1,2 +1,182 @@
-import { useState } from 'react';
-import {\n  ColumnDef,\n  flexRender,\n  getCoreRowModel,\n  getPaginationRowModel,\n  getSortedRowModel,\n  SortingState,\n  useReactTable,\n} from '@tanstack/react-table';\nimport {\n  Table,\n  TableBody,\n  TableCell,\n  TableHead,\n  TableHeader,\n  TableRow,\n} from '@/components/ui/table';\nimport { Button } from '@/components/ui/button';\nimport { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';\n\ninterface DataTableProps<TData, TValue> {\n  columns: ColumnDef<TData, TValue>[];\n  data: TData[];\n  pageSize?: number;\n}\n\nexport function DataTable<TData, TValue>({\n  columns,\n  data,\n  pageSize = 10,\n}: DataTableProps<TData, TValue>) {\n  const [sorting, setSorting] = useState<SortingState>([]);\n\n  const table = useReactTable({\n    data,\n    columns,\n    getCoreRowModel: getCoreRowModel(),\n    getPaginationRowModel: getPaginationRowModel(),\n    onSortingChange: setSorting,\n    getSortedRowModel: getSortedRowModel(),\n    state: {\n      sorting,\n    },\n    initialState: {\n      pagination: {\n        pageSize,\n      },\n    },\n  });\n\n  return (\n    <div className=\"space-y-4\">\n      <div className=\"rounded-md border\">\n        <Table>\n          <TableHeader>\n            {table.getHeaderGroups().map((headerGroup) => (\n              <TableRow key={headerGroup.id}>\n                {headerGroup.headers.map((header) => {\n                  return (\n                    <TableHead key={header.id}>\n                      {header.isPlaceholder\n                        ? null\n                        : flexRender(\n                            header.column.columnDef.header,\n                            header.getContext()\n                          )}\n                    </TableHead>\n                  );\n                })}\n              </TableRow>\n            ))}\n          </TableHeader>\n          <TableBody>\n            {table.getRowModel().rows?.length ? (\n              table.getRowModel().rows.map((row) => (\n                <TableRow\n                  key={row.id}\n                  data-state={row.getIsSelected() && \"selected\"}\n                >\n                  {row.getVisibleCells().map((cell) => (\n                    <TableCell key={cell.id}>\n                      {flexRender(\n                        cell.column.columnDef.cell,\n                        cell.getContext()\n                      )}\n                    </TableCell>\n                  ))}\n                </TableRow>\n              ))\n            ) : (\n              <TableRow>\n                <TableCell\n                  colSpan={columns.length}\n                  className=\"h-24 text-center\"\n                >\n                  No results.\n                </TableCell>\n              </TableRow>\n            )}\n          </TableBody>\n        </Table>\n      </div>\n      \n      {/* Pagination */}\n      <div className=\"flex items-center justify-between px-2\">\n        <div className=\"flex-1 text-sm text-muted-foreground\">\n          {table.getFilteredSelectedRowModel().rows.length} of{\" \"}\n          {table.getFilteredRowModel().rows.length} row(s) selected.\n        </div>\n        <div className=\"flex items-center space-x-6 lg:space-x-8\">\n          <div className=\"flex items-center space-x-2\">\n            <p className=\"text-sm font-medium\">Rows per page</p>\n            <select\n              className=\"h-8 w-[70px] rounded border border-input bg-transparent px-3 py-1 text-sm\"\n              value={table.getState().pagination.pageSize}\n              onChange={(e) => {\n                table.setPageSize(Number(e.target.value));\n              }}\n            >\n              {[10, 20, 30, 40, 50].map((pageSize) => (\n                <option key={pageSize} value={pageSize}>\n                  {pageSize}\n                </option>\n              ))}\n            </select>\n          </div>\n          <div className=\"flex w-[100px] items-center justify-center text-sm font-medium\">\n            Page {table.getState().pagination.pageIndex + 1} of{\" \"}\n            {table.getPageCount()}\n          </div>\n          <div className=\"flex items-center space-x-2\">\n            <Button\n              variant=\"outline\"\n              className=\"hidden h-8 w-8 p-0 lg:flex\"\n              onClick={() => table.setPageIndex(0)}\n              disabled={!table.getCanPreviousPage()}\n            >\n              <span className=\"sr-only\">Go to first page</span>\n              <ChevronsLeft className=\"h-4 w-4\" />\n            </Button>\n            <Button\n              variant=\"outline\"\n              className=\"h-8 w-8 p-0\"\n              onClick={() => table.previousPage()}\n              disabled={!table.getCanPreviousPage()}\n            >\n              <span className=\"sr-only\">Go to previous page</span>\n              <ChevronLeft className=\"h-4 w-4\" />\n            </Button>\n            <Button\n              variant=\"outline\"\n              className=\"h-8 w-8 p-0\"\n              onClick={() => table.nextPage()}\n              disabled={!table.getCanNextPage()}\n            >\n              <span className=\"sr-only\">Go to next page</span>\n              <ChevronRight className=\"h-4 w-4\" />\n            </Button>\n            <Button\n              variant=\"outline\"\n              className=\"hidden h-8 w-8 p-0 lg:flex\"\n              onClick={() => table.setPageIndex(table.getPageCount() - 1)}\n              disabled={!table.getCanNextPage()}\n            >\n              <span className=\"sr-only\">Go to last page</span>\n              <ChevronsRight className=\"h-4 w-4\" />\n            </Button>\n          </div>\n        </div>\n      </div>\n    </div>\n  );\n}
+import { useState } from "react";
+import {
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import type { ColumnDef, SortingState } from "@tanstack/react-table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
+
+interface DataTableProps<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  pageSize?: number;
+}
+
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  pageSize = 10,
+}: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
+    initialState: {
+      pagination: {
+        pageSize,
+      },
+    },
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-md border overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-2">
+        <div className="text-sm text-muted-foreground">
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
+        </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 lg:gap-8">
+          <div className="flex items-center space-x-2">
+            <p className="text-sm font-medium whitespace-nowrap">
+              Rows per page
+            </p>
+            <select
+              className="h-8 w-[70px] rounded border border-input bg-transparent px-3 py-1 text-sm"
+              value={table.getState().pagination.pageSize}
+              onChange={(e) => {
+                table.setPageSize(Number(e.target.value));
+              }}
+            >
+              {[10, 20, 30, 40, 50].map((pageSize) => (
+                <option key={pageSize} value={pageSize}>
+                  {pageSize}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center justify-center text-sm font-medium whitespace-nowrap">
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              className="hidden h-8 w-8 p-0 sm:flex"
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">Go to first page</span>
+              <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="h-8 w-8 p-0"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">Go to previous page</span>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="h-8 w-8 p-0"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Go to next page</span>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="hidden h-8 w-8 p-0 sm:flex"
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Go to last page</span>
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
